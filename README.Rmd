@@ -1,0 +1,28 @@
+# practicalmachinelearning
+Repository for JHU Coursera Practical Machine Learning
+
+The main issue in creating a model was that there were a very large number of variables, and thus building the more complex models like Random Forest took prohibitively long and sometimes produced warnings (e.g., "variable 'kurtosis_roll_belt' is not a factor").
+
+Upon inspection, there were a number of variables that only assumed one of two possible values: blank and "div/0" (an undefined value resulting in a division by 0). These were:
+
+kurtosis_yaw_belt, skewness_yaw_belt, kurtosis_yaw_dumbbell, skewness_yaw_dumbbell, amplitude_yaw_dumbbell, kurtosis_yaw_forearm, skewness_yaw_forearm, amplitude_yaw_forearm
+
+```{r include=FALSE}
+library ("labeling", lib.loc="../../Documents/R/packages/")
+library ("ggplot2", lib.loc="../../Documents/R/packages/")
+library ("e1071", lib.loc="../../Documents/R/packages/")
+library ("caret", lib.loc="../../Documents/R/packages/")
+load ("data/PmlSub48Rf.RData")
+```
+
+This is the confusion matrix showing the test set accuracy:
+
+```{r}
+confusionMatrix (Test$classe, PredRf)
+```
+
+Embed plots:
+
+```{r, echo=FALSE}
+plot (cars)
+```
