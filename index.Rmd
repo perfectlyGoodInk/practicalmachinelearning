@@ -10,6 +10,12 @@ Upon inspection, there were a number of variables that only assumed one of two p
 
 kurtosis_yaw_belt, skewness_yaw_belt, kurtosis_yaw_dumbbell, skewness_yaw_dumbbell, amplitude_yaw_dumbbell, kurtosis_yaw_forearm, skewness_yaw_forearm, amplitude_yaw_forearm
 
+Likewise, these variables were blank, "div/0," or a handful of other values:
+
+amplitude_yaw_belt, kurtosis_roll_arm, skewness_roll_arm, kurtosis_picth_arm, skewness_pitch_arm, kurtosis_yaw_arm, skewness_yaw_arm, kurtosis_roll_dumbbell, skewness_roll_dumbbell, kurtosis_picth_dumbbell, skewness_pitch_dumbbell, kurtosis_roll_belt, kurtosis_roll_forearm, skewness_roll_forearm, kurtosis_picth_forearm, skewness_pitch_forearm
+
+It isn't that surprising that these variables were not that useful because they describe the distribution of other variables.
+
 ```{r include=FALSE}
 library ("labeling", lib.loc="../../Documents/R/packages/")
 library ("ggplot2", lib.loc="../../Documents/R/packages/")
@@ -26,6 +32,12 @@ confusionMatrix (Test$classe, PredRf)
 
 Embed plots:
 
-```{r, echo=FALSE}
-plot (cars)
+```{r include=FALSE}
+library ("reshape", lib.loc="../../Documents/R/packages/")
+```
+
+
+```{r}
+Melt.Pml <- melt (Pml)
+ggplot (data = Melt.Pml, aes (x=value)) + stat_density() + facet_wrap (~variable, scales = "free")
 ```
