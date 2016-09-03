@@ -34,10 +34,19 @@ Embed plots:
 
 ```{r include=FALSE}
 library ("reshape", lib.loc="../../Documents/R/packages/")
+PmlSub <- Pml[8:dim(Pml)[2]]
+
+# Filter out skewness and kurtosis and other useless variables.
+PmlSub <- PmlSub[,-grep("kurt", colnames (PmlSub))]
+PmlSub <- PmlSub[,-grep("skew", colnames (PmlSub))]
+
+# Remove the ones with 19612 NAs.
+PmlSub <- subset( PmlSub, select = -c(max_roll_belt, max_picth_belt, min_roll_belt, min_pitch_belt, amplitude_pitch_belt, var_total_accel_belt, avg_roll_belt, stddev_roll_belt, var_roll_belt, avg_pitch_belt, stddev_pitch_belt, var_pitch_belt, avg_yaw_belt, var_accel_arm, avg_roll_arm, stddev_roll_arm, var_roll_arm, avg_pitch_arm, stddev_pitch_arm, var_pitch_arm, avg_yaw_arm, stddev_yaw_arm, var_yaw_arm, max_roll_arm, max_picth_arm, max_yaw_arm, min_roll_arm, min_pitch_arm, min_yaw_arm, amplitude_roll_arm, amplitude_pitch_arm, amplitude_yaw_arm, max_roll_dumbbell, max_picth_dumbbell, min_roll_dumbbell, min_pitch_dumbbell, amplitude_roll_dumbbell, amplitude_pitch_dumbbell, var_accel_dumbbell, avg_roll_dumbbell, stddev_roll_dumbbell, var_roll_dumbbell, avg_pitch_dumbbell, stddev_pitch_dumbbell, var_pitch_dumbbell, avg_yaw_dumbbell, stddev_yaw_dumbbell, var_yaw_dumbbell, max_roll_forearm, max_picth_forearm, min_roll_forearm, min_pitch_forearm, amplitude_roll_forearm, amplitude_pitch_forearm, var_accel_forearm, avg_roll_forearm, stddev_roll_forearm, var_roll_forearm, avg_pitch_forearm, stddev_pitch_forearm, var_pitch_forearm, avg_yaw_forearm, stddev_yaw_forearm, var_yaw_forearm) )
+
 ```
 
 
-```{r}
-Melt.Pml <- melt (Pml)
-ggplot (data = Melt.Pml, aes (x=value)) + stat_density() + facet_wrap (~variable, scales = "free")
+```{r echo = FALSE}
+Melt.PmlSub <- melt (PmlSub)
+ggplot (data = Melt.PmlSub, aes (x=value)) + stat_density() + facet_wrap (~variable, scales = "free")
 ```
