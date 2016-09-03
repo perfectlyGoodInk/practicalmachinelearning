@@ -4,17 +4,29 @@ output: html_document
 # Practical Machine Learning Final Project
 Author:  Felix Ling, Date: September 3, 2016
 
-The main issue in creating a model was that there were a very large number of variables, and thus building the more complex models like Random Forest took prohibitively long and sometimes produced warnings (e.g., "variable 'kurtosis_roll_belt' is not a factor").
+The main issue in creating a machine learning model from the exercise data was that there were a very large number of variables. With all of the variables included, building the more complex models like random forest took prohibitively long, sometimes produced warnings (e.g., "variable 'kurtosis_roll_belt' is not a factor"), and often produced models that were unable to make any predictions due to variables unavailable in the test set.
+
+Thus, it was necessary to narrow down the number of variables to something more manageable.
+
+# Subsetting
 
 Upon inspection, there were a number of variables that only assumed one of two possible values: blank and "div/0" (an undefined value resulting in a division by 0). These were:
 
-kurtosis_yaw_belt, skewness_yaw_belt, kurtosis_yaw_dumbbell, skewness_yaw_dumbbell, amplitude_yaw_dumbbell, kurtosis_yaw_forearm, skewness_yaw_forearm, amplitude_yaw_forearm
+```{r, eval=FALSE}
+kurtosis_yaw_belt, skewness_yaw_belt, kurtosis_yaw_dumbbell, skewness_yaw_dumbbell,
+amplitude_yaw_dumbbell, kurtosis_yaw_forearm, skewness_yaw_forearm, amplitude_yaw_forearm
+```
 
-Likewise, these variables were blank, "div/0," or a handful of other values:
+Likewise, the following variables could only be blank, "div/0," or a handful of other values:
 
-amplitude_yaw_belt, kurtosis_roll_arm, skewness_roll_arm, kurtosis_picth_arm, skewness_pitch_arm, kurtosis_yaw_arm, skewness_yaw_arm, kurtosis_roll_dumbbell, skewness_roll_dumbbell, kurtosis_picth_dumbbell, skewness_pitch_dumbbell, kurtosis_roll_belt, kurtosis_roll_forearm, skewness_roll_forearm, kurtosis_picth_forearm, skewness_pitch_forearm
+```{r, eval=FALSE}
+amplitude_yaw_belt, kurtosis_roll_arm, skewness_roll_arm, kurtosis_picth_arm, skewness_pitch_arm,
+kurtosis_yaw_arm, skewness_yaw_arm, kurtosis_roll_dumbbell, skewness_roll_dumbbell,
+kurtosis_picth_dumbbell, skewness_pitch_dumbbell, kurtosis_roll_belt, kurtosis_roll_forearm,
+skewness_roll_forearm, kurtosis_picth_forearm, skewness_pitch_forearm
+```
 
-It isn't that surprising that these variables were not that useful because they describe the distribution of other variables.
+It isn't that surprising that these variables were not that useful because they simply describe the distribution of other variables. For example, kurtosis_yaw_dumbbell describes the thickness of the tails of the distribution of yaw_dumbbell.
 
 ```{r include=FALSE}
 library ("labeling", lib.loc="../../Documents/R/packages/")
@@ -31,53 +43,178 @@ PmlSub <- PmlSub[,-grep("kurt", colnames (PmlSub))]
 PmlSub <- PmlSub[,-grep("skew", colnames (PmlSub))]
 ```
 
-Next, viewing the structure of the dataframe shows that quite a few variables are mostly made up of NAs, meaning that the observation was not available. To keep this report concise, this command only shows the first 12.
+Next, viewing the summary of the remaining variables shows that quite a few variables are mostly made up of NAs, meaning that the observation was not available. To keep this report concise, this command only shows the first 12.
 
 ```{r}
 summary (PmlSub[1:12])
 ```
 
-Refer to the summaries of max_roll_belt, max_pictch_belt, min_roll_belt, for examples with mostly NA's.
+Refer to the summaries of max_roll_belt, max_pictch_belt, min_roll_belt, to see some examples that were mostly NA's.
 
-Overall, these variables had 19216 NA's out of a total of 19622 observations, meaning that most of the data was not available:
+Overall, the following variables had 19216 NA's out of a total of 19622 observations, meaning that most of the data was not available:
 
-max_roll_belt, max_picth_belt, min_roll_belt, min_pitch_belt, amplitude_pitch_belt, var_total_accel_belt, avg_roll_belt, stddev_roll_belt, var_roll_belt, avg_pitch_belt, stddev_pitch_belt, var_pitch_belt, avg_yaw_belt, var_accel_arm, avg_roll_arm, stddev_roll_arm, var_roll_arm, avg_pitch_arm, stddev_pitch_arm, var_pitch_arm, avg_yaw_arm, stddev_yaw_arm, var_yaw_arm, max_roll_arm, max_picth_arm, max_yaw_arm, min_roll_arm, min_pitch_arm, min_yaw_arm, amplitude_roll_arm, amplitude_pitch_arm, amplitude_yaw_arm, max_roll_dumbbell, max_picth_dumbbell, min_roll_dumbbell, min_pitch_dumbbell, amplitude_roll_dumbbell, amplitude_pitch_dumbbell, var_accel_dumbbell, avg_roll_dumbbell, stddev_roll_dumbbell, var_roll_dumbbell, avg_pitch_dumbbell, stddev_pitch_dumbbell, var_pitch_dumbbell, avg_yaw_dumbbell, stddev_yaw_dumbbell, var_yaw_dumbbell, max_roll_forearm, max_picth_forearm, min_roll_forearm, min_pitch_forearm, amplitude_roll_forearm, amplitude_pitch_forearm, var_accel_forearm, avg_roll_forearm, stddev_roll_forearm, var_roll_forearm, avg_pitch_forearm, stddev_pitch_forearm, var_pitch_forearm, avg_yaw_forearm, stddev_yaw_forearm, var_yaw_forearm
+```{r, eval=FALSE}
+max_roll_belt, max_picth_belt, min_roll_belt, min_pitch_belt, amplitude_pitch_belt,
+var_total_accel_belt, avg_roll_belt, stddev_roll_belt, var_roll_belt, avg_pitch_belt, 
+stddev_pitch_belt, var_pitch_belt, avg_yaw_belt, var_accel_arm, avg_roll_arm, stddev_roll_arm, 
+var_roll_arm, avg_pitch_arm, stddev_pitch_arm, var_pitch_arm, avg_yaw_arm, stddev_yaw_arm, 
+var_yaw_arm, max_roll_arm, max_picth_arm, max_yaw_arm, min_roll_arm, min_pitch_arm, min_yaw_arm, 
+amplitude_roll_arm, amplitude_pitch_arm, amplitude_yaw_arm, max_roll_dumbbell, 
+max_picth_dumbbell, min_roll_dumbbell, min_pitch_dumbbell, amplitude_roll_dumbbell, 
+amplitude_pitch_dumbbell, var_accel_dumbbell, avg_roll_dumbbell, stddev_roll_dumbbell, 
+var_roll_dumbbell, avg_pitch_dumbbell, stddev_pitch_dumbbell, var_pitch_dumbbell, 
+avg_yaw_dumbbell, stddev_yaw_dumbbell, var_yaw_dumbbell, max_roll_forearm, max_picth_forearm, 
+min_roll_forearm, min_pitch_forearm, amplitude_roll_forearm, amplitude_pitch_forearm, 
+var_accel_forearm, avg_roll_forearm, stddev_roll_forearm, var_roll_forearm, avg_pitch_forearm, 
+stddev_pitch_forearm, var_pitch_forearm, avg_yaw_forearm, stddev_yaw_forearm, var_yaw_forearm
+```
 
 ```{r include=FALSE}
 library ("reshape", lib.loc="../../Documents/R/packages/")
 
 # Remove the ones with 19612 NAs.
-PmlSub <- subset( PmlSub, select = -c(max_roll_belt, max_picth_belt, min_roll_belt, min_pitch_belt, amplitude_pitch_belt, var_total_accel_belt, avg_roll_belt, stddev_roll_belt, var_roll_belt, avg_pitch_belt, stddev_pitch_belt, var_pitch_belt, avg_yaw_belt, var_accel_arm, avg_roll_arm, stddev_roll_arm, var_roll_arm, avg_pitch_arm, stddev_pitch_arm, var_pitch_arm, avg_yaw_arm, stddev_yaw_arm, var_yaw_arm, max_roll_arm, max_picth_arm, max_yaw_arm, min_roll_arm, min_pitch_arm, min_yaw_arm, amplitude_roll_arm, amplitude_pitch_arm, amplitude_yaw_arm, max_roll_dumbbell, max_picth_dumbbell, min_roll_dumbbell, min_pitch_dumbbell, amplitude_roll_dumbbell, amplitude_pitch_dumbbell, var_accel_dumbbell, avg_roll_dumbbell, stddev_roll_dumbbell, var_roll_dumbbell, avg_pitch_dumbbell, stddev_pitch_dumbbell, var_pitch_dumbbell, avg_yaw_dumbbell, stddev_yaw_dumbbell, var_yaw_dumbbell, max_roll_forearm, max_picth_forearm, min_roll_forearm, min_pitch_forearm, amplitude_roll_forearm, amplitude_pitch_forearm, var_accel_forearm, avg_roll_forearm, stddev_roll_forearm, var_roll_forearm, avg_pitch_forearm, stddev_pitch_forearm, var_pitch_forearm, avg_yaw_forearm, stddev_yaw_forearm, var_yaw_forearm) )
+PmlSub <- subset( PmlSub, 
+                  select = -c(max_roll_belt, max_picth_belt, min_roll_belt, min_pitch_belt, 
+                              amplitude_pitch_belt, var_total_accel_belt, avg_roll_belt, 
+                              stddev_roll_belt, var_roll_belt, avg_pitch_belt, 
+                              stddev_pitch_belt, var_pitch_belt, avg_yaw_belt, var_accel_arm, 
+                              avg_roll_arm, stddev_roll_arm, var_roll_arm, avg_pitch_arm, 
+                              stddev_pitch_arm, var_pitch_arm, avg_yaw_arm, stddev_yaw_arm, 
+                              var_yaw_arm, max_roll_arm, max_picth_arm, max_yaw_arm, 
+                              min_roll_arm, min_pitch_arm, min_yaw_arm, amplitude_roll_arm, 
+                              amplitude_pitch_arm, amplitude_yaw_arm, max_roll_dumbbell, 
+                              max_picth_dumbbell, min_roll_dumbbell, min_pitch_dumbbell, 
+                              amplitude_roll_dumbbell, amplitude_pitch_dumbbell, 
+                              var_accel_dumbbell, avg_roll_dumbbell, stddev_roll_dumbbell, 
+                              var_roll_dumbbell, avg_pitch_dumbbell, stddev_pitch_dumbbell, 
+                              var_pitch_dumbbell, avg_yaw_dumbbell, stddev_yaw_dumbbell, 
+                              var_yaw_dumbbell, max_roll_forearm, max_picth_forearm, 
+                              min_roll_forearm, min_pitch_forearm, amplitude_roll_forearm, 
+                              amplitude_pitch_forearm, var_accel_forearm, avg_roll_forearm, 
+                              stddev_roll_forearm, var_roll_forearm, avg_pitch_forearm, 
+                              stddev_pitch_forearm, var_pitch_forearm, avg_yaw_forearm, 
+                              stddev_yaw_forearm, var_yaw_forearm) )
 
 ```
 
-Upon the remaining variables, it was helpful to perform some exploratory data analysis from here:
-https://www.r-bloggers.com/how-to-use-data-analysis-for-machine-learning-example-part-1/
+Upon the remaining variables, it was helpful to perform some exploratory data analysis using a melt chart, basically density curves (or smoothed histograms) of all the variables in a single chart. The process is detailed here:
+https://www.r-bloggers.com/how-to-use-data-analysis-for-machine-learning-example-part-1/.
 
-The melt chart of the remaining variables looks like this
+The melt chart looked something like this (for readability, this is only subset of the variables):
 
 ```{r, warning=FALSE, message=FALSE}
-Melt.PmlSub <- melt (PmlSub)
+Melt.PmlSub <- melt (PmlSub[1:12])
 ggplot (data = Melt.PmlSub, aes (x=value)) + stat_density() + facet_wrap (~variable, scales = "free")
 ```
 
-From this chart, these variables looked the least promising and were also removed:
+It is apparent from this chart that there isn't very much information emboded in amplitude_roll_belt, stddev_yaw_belt, or var_yaw_belt. Much like the skewness and kurtosis variables, these are again descriptive of the distributions of other variables.
 
-amplitude_yaw_belt, var_yaw_belt, max_yaw_belt, min_yaw_belt, amplitude_roll_belt, amplitude_yaw_belt, stddev_yaw_belt, var_yaw_belt, max_yaw_dumbbell, min_yaw_dumbbell, amplitude_yaw_dumbbell, gyros_dumbbell_x, max_yaw_forearm, min_yaw_forearm, amplitude_yaw_forearm, gyros_forearm_y, gyros_forearm_z
-
-After that, it was possible to train the random forest model on the remaining 48 variables. This is the code used to subset and train.
+From the full melt chart, the following variables looked the least promising and were also removed:
 
 ```{r, eval=FALSE}
-library ("labeling", lib.loc="../../Documents/R/packages/")
-library ("ggplot2", lib.loc="../../Documents/R/packages/")
-library ("e1071", lib.loc="../../Documents/R/packages/")
-library ("caret", lib.loc="../../Documents/R/packages/")
-
-confusionMatrix (Test$classe, PredRf)
+amplitude_yaw_belt, var_yaw_belt, max_yaw_belt, min_yaw_belt, amplitude_roll_belt, 
+amplitude_yaw_belt, stddev_yaw_belt, var_yaw_belt, max_yaw_dumbbell, min_yaw_dumbbell, 
+amplitude_yaw_dumbbell, gyros_dumbbell_x, max_yaw_forearm, min_yaw_forearm, 
+amplitude_yaw_forearm, gyros_forearm_y, gyros_forearm_z
 ```
 
-This is the confusion matrix showing the test set accuracy of the random forest model:
+# Training
+
+After that, it was possible to train the random forest model on the remaining 48 variables. I selected random forest because it is one of the top-performing models and was also the model used in <a href="http://groupware.les.inf.puc-rio.br/public/papers/2013.Velloso.QAR-WLE.pdf">the original study</a>. Also, the other models I tried, such as linear discriminant analysis, did not perform very well, with accuracies below 70%.
+
+This is the code used to subset and train the random forest model.
+
+```{r, eval=FALSE}
+library ("labeling")
+library ("digest")
+library ("ggplot2")
+library ("e1071")
+library ("caret")
+library ("randomForest")
+
+Pml <- read.csv ("data/pml-training.csv");
+PmlTest <- read.csv ("data/pml-testing.csv");
+
+set.seed (2112)
+
+# X is the index of the data!
+# Strip out X, user_name, 3 timestamps, 2 window vars.
+PmlSub <- Pml[8:dim(Pml)[2]]
+
+# Filter out skewness and kurtosis and other useless variables.
+PmlSub <- PmlSub[,-grep("kurt", colnames (PmlSub))]
+PmlSub <- PmlSub[,-grep("skew", colnames (PmlSub))]
+
+# Remove the ones with 19612 NAs.
+PmlSub <- subset( PmlSub, 
+                  select = -c(max_roll_belt, max_picth_belt, min_roll_belt, min_pitch_belt, 
+                              amplitude_pitch_belt, var_total_accel_belt, avg_roll_belt, 
+                              stddev_roll_belt, var_roll_belt, avg_pitch_belt, 
+                              stddev_pitch_belt, var_pitch_belt, avg_yaw_belt, var_accel_arm, 
+                              avg_roll_arm, stddev_roll_arm, var_roll_arm, avg_pitch_arm, 
+                              stddev_pitch_arm, var_pitch_arm, avg_yaw_arm, stddev_yaw_arm, 
+                              var_yaw_arm, max_roll_arm, max_picth_arm, max_yaw_arm, 
+                              min_roll_arm, min_pitch_arm, min_yaw_arm, amplitude_roll_arm, 
+                              amplitude_pitch_arm, amplitude_yaw_arm, max_roll_dumbbell, 
+                              max_picth_dumbbell, min_roll_dumbbell, min_pitch_dumbbell, 
+                              amplitude_roll_dumbbell, amplitude_pitch_dumbbell, 
+                              var_accel_dumbbell, avg_roll_dumbbell, stddev_roll_dumbbell, 
+                              var_roll_dumbbell, avg_pitch_dumbbell, stddev_pitch_dumbbell, 
+                              var_pitch_dumbbell, avg_yaw_dumbbell, stddev_yaw_dumbbell, 
+                              var_yaw_dumbbell, max_roll_forearm, max_picth_forearm, 
+                              min_roll_forearm, min_pitch_forearm, amplitude_roll_forearm, 
+                              amplitude_pitch_forearm, var_accel_forearm, avg_roll_forearm, 
+                              stddev_roll_forearm, var_roll_forearm, avg_pitch_forearm, 
+                              stddev_pitch_forearm, var_pitch_forearm, avg_yaw_forearm, 
+                              stddev_yaw_forearm, var_yaw_forearm) )
+
+# Remove the ones that don't look promising from the melt plot.
+PmlSub <- subset( PmlSub, 
+                  select = -c(amplitude_yaw_belt, var_yaw_belt, max_yaw_belt, min_yaw_belt, 
+                              amplitude_roll_belt, amplitude_yaw_belt, stddev_yaw_belt, 
+                              var_yaw_belt, max_yaw_dumbbell, min_yaw_dumbbell, 
+                              amplitude_yaw_dumbbell, gyros_dumbbell_x, max_yaw_forearm, 
+                              min_yaw_forearm, amplitude_yaw_forearm, gyros_forearm_y, 
+                              gyros_forearm_z) )
+
+# NOTE! The same subsetting was performed with PmlTest, but for the sake of concision, the
+# code is not shown here.
+
+# Create the training and test sets. 
+# The test set doesn't have classe, so need to make our own test set.
+InTrain = createDataPartition (PmlSub$classe, p = .8)[[1]]
+Training = PmlSub[ InTrain, ]
+Test = PmlSub[ -InTrain, ]
+
+# Train the Random Forest model.
+ModFitRf <- train (classe ~., method = "rf", data = Training)
+
+# Get the model's predictions.
+PredRf <- predict (ModFitRf, Test)
+```
+
+# Evaluating the model
+
+This is the confusion matrix showing the test set accuracy of the random forest model to be 98.8%, so I expect an out-of-sample error of 1.2%. Due to this high accuracy rate, no cross-validation was performed.
 
 ```{r}
 confusionMatrix (Test$classe, PredRf)
+```
+
+These are the most important variables to this model.
+
+```{r, warning=FALSE, message=FALSE}
+varImp (ModFitRf)
+```
+
+To get a better sense of why certain variables were important, see this scatterplot of the two most important variables against classe, where you can see the different classes somewhat separated:
+
+```{r}
+qplot (Test$yaw_belt, Test$pitch_forearm, colour = classe, shape = classe, data = Test)
+```
+
+Lastly, this is a plot of the next two most important variables against classe:
+
+```{r}
+qplot (Test$magnet_dumbbell_z, Test$magnet_dumbbell_y, colour = classe, shape = classe, data = Test)
 ```
