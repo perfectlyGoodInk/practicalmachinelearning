@@ -4,13 +4,13 @@
 # Tried doing rpart, but when it finally returned, there was no object! 
 # Because call to train was in a function and thus output is not returned!
 
-library ("labeling", lib.loc="packages")
-library ("digest", lib.loc="packages")
-library ("ggplot2", lib.loc="packages")
-library ("e1071", lib.loc="packages")
-library ("caret", lib.loc="packages")
+library ("labeling", lib.loc="../../Documents/R/packages/")
+#library ("digest", lib.loc="../../Documents/R/packages/")
+library ("ggplot2", lib.loc="../../Documents/R/packages/")
+library ("e1071", lib.loc="../../Documents/R/packages/")
+library ("caret", lib.loc="../../Documents/R/packages/")
 
-library ("randomForest", lib.loc="packages")
+library ("randomForest", lib.loc="../../Documents/R/packages/")
 
 Pml <- read.csv ("data/pml-training.csv");
 PmlTest <- read.csv ("data/pml-testing.csv");
