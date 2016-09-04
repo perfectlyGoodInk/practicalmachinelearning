@@ -1,3 +1,3 @@
-Go here:
+Please go here:
 
 https://perfectlygoodink.github.io/practicalmachinelearning/
